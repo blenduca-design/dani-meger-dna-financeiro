@@ -25,13 +25,32 @@
     if (indice > 0) el.style.setProperty('--revela-atraso', (indice * PASSO_MS) + 'ms');
   });
 
-  function revelarTudo() {
-    Array.prototype.forEach.call(alvos, function (el) { el.classList.add('dentro'); });
-  }
+  function revelar(el) { el.classList.add('dentro'); }
+
+  /* 🔴 A hero saía revelada "de graça" só ACIDENTALMENTE: o comentário acima
+     supunha que seus elementos sempre caem dentro do IntersectionObserver
+     logo no primeiro `observe()`, mas o gatilho abaixo usa `rootMargin: -30%`
+     — só considera "dentro" quem está nos 70% superiores da tela. Em
+     qualquer viewport mais baixo que ~900px (um notebook comum já entrega
+     ~768px de altura útil), o botão da hero — último `[data-revela]` do
+     bloco — nasce ABAIXO dessa faixa. Ele não tinha scroll para disparar o
+     observer, então só aparecia quando o failsafe de 3s lá embaixo vencia:
+     3 segundos de espera real toda vez que a página abria ou dava reload.
+     A hero não tem scroll para revelar por definição (ver comentário no
+     HTML), então ela não deveria depender do MESMO gatilho de rolagem que o
+     resto da página — ela revela imediatamente, sempre, mantendo só a
+     cascata de atraso entre os irmãos. */
+  var heroAlvos = document.querySelectorAll('.heroi [data-revela]');
+  Array.prototype.forEach.call(heroAlvos, revelar);
+
+  var scrollAlvos = Array.prototype.filter.call(alvos, function (el) {
+    return !el.closest('.heroi');
+  });
+  if (!scrollAlvos.length) return;
 
   if (!('IntersectionObserver' in window) ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    revelarTudo();
+    Array.prototype.forEach.call(scrollAlvos, revelar);
     return;
   }
 
@@ -45,10 +64,10 @@
      faz o resto: a rolagem some ver o texto assentar, não já assentado. */
   var observador = new IntersectionObserver(function (entradas) {
     entradas.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add('dentro'); observador.unobserve(e.target); }
+      if (e.isIntersecting) { revelar(e.target); observador.unobserve(e.target); }
     });
   }, { rootMargin: '0px 0px -30% 0px' });
 
-  Array.prototype.forEach.call(alvos, function (el) { observador.observe(el); });
-  setTimeout(revelarTudo, 3000);
+  Array.prototype.forEach.call(scrollAlvos, function (el) { observador.observe(el); });
+  setTimeout(function () { Array.prototype.forEach.call(scrollAlvos, revelar); }, 3000);
 })();
