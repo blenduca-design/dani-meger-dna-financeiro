@@ -6,3 +6,5 @@ dist/
 build/
 .vscode/
 .idea/
+.agents/
+skills-lock.json
