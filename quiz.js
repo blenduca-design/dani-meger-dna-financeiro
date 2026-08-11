@@ -198,18 +198,12 @@ function renderPasso() {
       btnAvancar.disabled = false;
     });
 
-    /* 🔴 O avanço automático é só para PONTEIRO, e a razão é de acessibilidade:
-       num radiogroup nativo a seta do teclado JÁ SELECIONA. Se o avanço saísse
-       do `change`, a primeira seta comprometeria a resposta e pularia de tela —
-       quem usa teclado nunca conseguiria percorrer as cinco opções antes de
-       escolher. Medido no navegador: uma seta para baixo pulava da pergunta 1
-       para a 2. `event.detail > 0` distingue clique de verdade de clique
-       sintetizado pelo teclado (Espaço/Enter chegam com detail 0).
-       Só avança se a pessoa ainda não tinha respondido: quem voltou para revisar
-       não é empurrado para frente de novo. */
-    input.addEventListener('click', (evento) => {
-      if (evento.detail > 0 && atual == null) setTimeout(avancar, 380);
-    });
+    /* Responder NÃO avança de tela sozinho — só registra a resposta e libera o
+       botão (feito no `change` acima). A pessoa decide quando seguir clicando
+       em "Continuar"/"Ver o meu diagnóstico". Isto evita duas dores: quem
+       clica pensando em revisar a opção acaba arremessado para a próxima
+       pergunta antes de conseguir mudar de ideia, e quem usa teclado perde o
+       controle do radiogroup no mesmo instante em que a seta seleciona. */
 
     div.appendChild(input);
     div.appendChild(label);
