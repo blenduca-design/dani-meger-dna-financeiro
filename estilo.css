@@ -432,54 +432,60 @@ p + p { margin-top: var(--s-16); }
    piso de texto grande, onde 4,11 vale. Em corpo, continua proibida sobre verde. */
 .bloco--verde .eixo__chave { color: var(--dourado-claro); }
 
-/* Centralizado, este parágrafo era o terceiro eixo de leitura da MESMA seção
-   (badge e título à esquerda, cartões à esquerda, ele no meio) — parte do
-   desalinhamento reclamado aqui, não só o dos dois eixos. */
-.cruzamento { padding: var(--s-48) 0 0; }
-.cruzamento p { max-width: 52ch; }
-
-/* Grade dos 9 arquétipos — mostrada como estrutura, sem revelar as leituras.
-   É a prova visual de que existe método, não uma lista de resultados.
-   🔴 Cantos arredondados em TABELA não saem de `overflow: hidden` no wrapper
-   como sairiam num <div>: a `<caption>` (obrigatória para acessibilidade —
-   é ela que o leitor de tela anuncia como título da tabela) mora DENTRO do
-   `<table>`, ACIMA do `<thead>`, com fundo transparente. Se o raio for do
-   wrapper, ele arredonda o canto da caption invisível e o thead colorido —
-   que é onde o olho realmente vê o raio — continua com canto quadrado no meio
-   da caixa. Por isso o raio vai direto nas 4 células de canto, e
-   `border-collapse` precisa virar `separate`: colapsado, todo navegador que
-   testei ignora `border-radius` em célula. */
-.grade-arquetipos { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: var(--s-32); font-size: var(--fs-sm); }
-.grade-arquetipos th, .grade-arquetipos td { padding: var(--s-16); text-align: left; border: var(--traco) solid var(--hairline-dark); }
-.grade-arquetipos thead tr:first-child th:first-child { border-top-left-radius: var(--raio); }
-.grade-arquetipos thead tr:first-child th:last-child { border-top-right-radius: var(--raio); }
-.grade-arquetipos tbody tr:last-child th:first-child { border-bottom-left-radius: var(--raio); }
-.grade-arquetipos tbody tr:last-child td:last-child { border-bottom-right-radius: var(--raio); }
-/* 🚫 Cabeçalho NÃO vai em dourado-claro: a 12px sobre verde dá 4,11 e reprova
-   (medido). Vai em creme (6,05), e a hierarquia sai de peso + caixa alta +
-   tracking — que é exatamente o que a rule desta instância prescreve para
-   bloco de cor: "a hierarquia sai do TAMANHO", não da cor.
-   O que faltava não era cor de tinta, era SUPERFÍCIE: com as 16 células no
-   mesmo verde, cabeçalho, eixo e conteúdo tinham exatamente o mesmo peso e a
-   grade lia como um bloco único de texto. As duas bordas da matriz (a linha de
-   execução e a coluna de motivação) ganham fundo próprio; as células ficam no
-   nível mais claro, que é onde estão os nove nomes — o conteúdo. */
-.grade-arquetipos thead th,
-.grade-arquetipos tbody th { background: var(--cartao-verde); color: var(--text-on-dark); }
-.grade-arquetipos thead th { font-family: var(--body); font-weight: var(--fw-bold); font-size: var(--fs-xs);
-  letter-spacing: .08em; text-transform: uppercase; }
-/* O eixo de motivação não vai em caixa alta: como rótulo de linha ele é lido
-   junto com a célula, e versalete a 12px ao lado de 14px normal briga. */
-.grade-arquetipos tbody th { font-family: var(--body); font-weight: var(--fw-bold);
-  font-size: var(--fs-sm); white-space: nowrap; }
-.grade-arquetipos td {
-  color: var(--text-on-dark);
-  background: color-mix(in srgb, var(--creme) 6%, transparent);
-  transition: background var(--transicao);
+/* --- os 9 perfis: três grupos, uma cor cada -----------------------------
+   A antiga grade-arquetipos era uma tabela 3×3 (motivação × execução) sem
+   nenhuma diferença visual entre linhas — a única pista de agrupamento era o
+   rótulo da linha. Como seção independente, cada TRIO precisa se anunciar
+   como grupo antes de o olho ler o primeiro card, e a paleta é FECHADA em 5
+   cores: por isso cada grupo usa uma dessas cinco como `--grupo-cor` (nunca
+   uma sexta cor nova), e o card entra com um LAVADO leve dela (mesmo recurso
+   do `.sobretitulo`, que já mistura verde a 7% no fundo da pílula) — não um
+   bloco cheio, que a regra da seção de cor proíbe fora de `.bloco--*`. */
+.grupo-perfis { margin-top: var(--s-48); }
+.grupo-perfis + .grupo-perfis { margin-top: var(--s-64); }
+.grupo-perfis__cab { padding-bottom: var(--s-16); border-bottom: var(--traco) solid var(--linha-cartao); }
+.grupo-perfis__centro {
+  display: block; font-weight: var(--fw-bold); font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+  color: var(--grupo-cor);
 }
-.grade-arquetipos tbody tr:hover td { background: color-mix(in srgb, var(--creme) 13%, transparent); }
-.grade-arquetipos caption { color: var(--text-on-dark); }
-.rolagem { overflow-x: auto; }
+.grupo-perfis__descricao { margin-top: var(--s-8); font-family: var(--display); font-size: var(--fs-xl); color: var(--marrom); }
+.grupo-perfis--instinto { --grupo-cor: var(--verde); }
+.grupo-perfis--emocao   { --grupo-cor: var(--dourado-texto); }
+/* 🔴 `--marrom` puro aqui era ilegível como "cor do grupo": é a MESMA tinta do
+   corpo do texto, então o rótulo do terceiro grupo desaparecia dentro do
+   parágrafo ao lado. Ainda são as 5 cores fechadas — só que misturadas
+   (mesmo recurso de `--cartao-marrom` e companhia): 70% marrom com 30%
+   dourado dá um bronze escuro que se distingue do verde, do dourado-texto E
+   do marrom de corpo, e continua escuro o bastante para passar contraste
+   sobre creme (mais escuro que `--dourado-texto`, que já passa em 5,29). */
+.grupo-perfis--razao    { --grupo-cor: color-mix(in srgb, var(--marrom) 70%, var(--dourado)); }
+
+.grade-perfis { display: grid; gap: var(--s-24); margin-top: var(--s-24); }
+@media (min-width: 56rem) { .grade-perfis { grid-template-columns: repeat(3, 1fr); } }
+
+.perfil-card {
+  position: relative; overflow: hidden;
+  padding: var(--s-32);
+  background: color-mix(in srgb, var(--grupo-cor) 6%, var(--cartao-claro));
+  border: var(--traco) solid var(--linha-cartao);
+  border-radius: var(--raio);
+  transition: transform var(--transicao), border-color var(--transicao);
+}
+/* Ao contrário do `.diagnostico li::after` (que só desenha no hover), este
+   filete fica visível em repouso: é ELE que carrega a "sensação de grupo"
+   pedida, e um sinal de agrupamento que só aparece ao passar o mouse não
+   cumpre isso — quem rola a seção precisa ver os três trios de cara. */
+.perfil-card::after {
+  content: ""; position: absolute; inset-inline: 0; top: 0;
+  height: var(--traco-espesso); background: var(--grupo-cor);
+}
+.perfil-card:hover { transform: translateY(calc(var(--s-4) * -1)); border-color: color-mix(in srgb, var(--grupo-cor) 45%, transparent); }
+.perfil-card__num {
+  display: block; font-family: var(--display); font-size: var(--fs-lg);
+  color: var(--grupo-cor); margin-bottom: var(--s-4);
+}
+.perfil-card h3 { margin: 0; }
 
 /* --- prova / números ----------------------------------------------------- */
 /* `--s-96` no topo: os números colavam no H2 e o bloco lia como continuação da
